@@ -5,9 +5,11 @@ This is based on the PowerBI.Tips Blog Post about this repo. For full instructio
 Building the Solution
 =====================
 
-The majority of credit needs to go to [Ferry Bouwman](https://www.linkedin.com/in/ferrybouwman/) who initially created a viable solution that can easily be integrated into a report. He created a GitHub repo that included a Power Automate flow that truly covers the entire process of automating the API call.
+The majority of credit needs to go to [Ferry Bouwman](https://www.linkedin.com/in/ferrybouwman/) who initially created a viable solution that can easily be integrated into a report. [He created a GitHub repo](https://github.com/ferrybouwman/Power-BI-Read-Only-REST-API) that included a Power Automate flow that truly covers the entire process of automating the API call.
 
 The following is building off Ferry's solution, including the new metadata schema that is now available. There is more that I want to accomplish in this solution, but to get the Scanner API and a template to connect to the data, you can do so using the steps below.
+
+Also many thanks to Rui Romano's solution and Power BI template. [You can find his full solution here](https://github.com/RuiRomano/pbimonitor): 
 
 ### Pre-Requisites Before Use
 
