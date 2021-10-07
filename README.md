@@ -1,6 +1,6 @@
 # Power BI Metadata Scanner API & Template
 
-This is based on the PowerBI.Tips Blog Post about this repo. For full instructions, [please see the article here.](https://powerbi.tips/?p=48184&preview=true)
+This is based on the PowerBI.Tips Blog Post about this repo. For full instructions, [please see the article here.](https://powerbi.tips/2021/10/using-the-power-bi-scanner-api-to-manage-tenants-entire-metadata/)
 
 Building the Solution
 =====================
