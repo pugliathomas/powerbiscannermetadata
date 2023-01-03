@@ -1,10 +1,9 @@
 # Solution v2 - Using the Dataflow Scanner API Solution
-!!!  info Solution v1
-    Looking for Solution v1 (Power Automate)? [You can find it here.](./v1%20Solution/)
 
 ## Introduction
 
-The following is an updated solution to collect and store Power BI tenant metadata. To see version 1 (using Power Automate), see here: LINK.
+The following is an updated solution to collect and store Power BI tenant metadata. To see version 1 (using Power Automate), :[You can find it here.](./v1%20Solution/).
+
 This solution utilizes Dataflow Best Practices, and utilizes the "bronze / silver / gold" approach to dataflows to A) Send a single request for a new scan and B) use the silver/gold dataflow to collect the metadata from that scan.
 
 Without the use of two dataflows, Power Query would attempt per query to post a new scan.
@@ -41,7 +40,7 @@ This is the first dataflow needed to be imported into your tenant. This dataflow
 
 This is essential as in order to retrieve the metadata, you must post and retrieve a scan ID. The only purpose of this dataflow is to post, and then output the Scan ID to be used in the silverGetScannerResults dataflow.
 
-!!!  caution Important
+##### Important
     Ensure you do not load this dataflow multiple times a day, or even go back to editing it. Everytime this dataflow is triggered it will post and return a new scan ID! 
 
 
