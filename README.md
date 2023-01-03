@@ -13,6 +13,9 @@ There is currently a v3 solution that will not only incorporate the Scanner API,
 
 V2 is focused on improving the Power Automate method which has limitations and errors.
 
+### Solution v1 (Power Automate)
+
+Looking for Solution v1 (just Power Automate)? [You can find it here.](./v1Solution/)
 ## Pre-Requisites
 
 Before starting, you must have already completed the following in order to use the Scanner API at all. Please see the documentation for each to set up:
