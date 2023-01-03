@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The following is an updated solution to collect and store Power BI tenant metadata. To see version 1 (using Power Automate), [You can find it here.](./v1%20Solution/).
+The following is an updated solution to collect and store Power BI tenant metadata. To see version 1 (using Power Automate), [You can find it here](./v1%20Solution/).
 
 This solution utilizes Dataflow Best Practices, and utilizes the "bronze / silver / gold" approach to dataflows to A) Send a single request for a new scan and B) use the silver/gold dataflow to collect the metadata from that scan.
 
