@@ -1,0 +1,175 @@
+{
+    "name": "bronzeGetScannerWorkspaceID",
+    "description": "",
+    "version": "1.0",
+    "culture": "en-US",
+    "modifiedTime": "2022-11-07T22:30:48.7455887+00:00",
+    "ppdf:outputFileFormat": "Csv",
+    "pbi:mashup": {
+        "fastCombine": true,
+        "allowNativeQueries": false,
+        "queriesMetadata": {
+            "client_id": {
+                "queryId": "4d8af51f-0123-4a91-a250-318144195239",
+                "queryName": "client_id",
+                "queryGroupId": "40ddf872-7938-4986-903f-0455b6657d6b"
+            },
+            "client_secret": {
+                "queryId": "b803f1d3-bc0e-4b9e-a158-506449c3f93f",
+                "queryName": "client_secret",
+                "queryGroupId": "40ddf872-7938-4986-903f-0455b6657d6b"
+            },
+            "tenant_id": {
+                "queryId": "b1a57c8b-281d-413b-b7dc-ba165eba5bf1",
+                "queryName": "tenant_id",
+                "queryGroupId": "40ddf872-7938-4986-903f-0455b6657d6b"
+            },
+            "GetToken": {
+                "queryId": "4ef528fa-acac-42f9-b1e8-483bfe7dcc5a",
+                "queryName": "GetToken",
+                "queryGroupId": "40ddf872-7938-4986-903f-0455b6657d6b"
+            },
+            "wsbody": {
+                "queryId": "f2d95378-2f48-4ee6-b2d3-25dd7721e21d",
+                "queryName": "wsbody",
+                "queryGroupId": "40ddf872-7938-4986-903f-0455b6657d6b"
+            },
+            "getScanID": {
+                "queryId": "acd51b86-d5ee-4ca0-b790-bd79c44ce112",
+                "queryName": "getScanID"
+            },
+            "Column1 id": {
+                "queryId": "30b4b3d1-9b55-442d-b685-35c2d551d365",
+                "queryName": "Column1 id"
+            },
+            "WorkspaceList": {
+                "queryId": "bacb4230-7bdc-4696-acad-35abd00d1891",
+                "queryName": "WorkspaceList",
+                "loadEnabled": true
+            },
+            "scanResults": {
+                "queryId": "67eb467c-0ff8-4c99-a482-2df6b043e4fc",
+                "queryName": "scanResults",
+                "loadEnabled": true
+            },
+            "getScanIDWS": {
+                "queryId": "e963147c-5d3b-472e-b9b3-c5e9a4a224ad",
+                "queryName": "getScanIDWS",
+                "loadEnabled": true
+            }
+        },
+        "document": "section Section1;\r\nshared client_id = \"fe78c0c5-78b7-4b26-b890-4ca1e149a074\" meta [IsParameterQuery=true, Type=\"Any\", IsParameterQueryRequired=true];\r\nshared client_secret = \"xtw8Q~.xSg7yvXMsmHADNwEZgnEezNi6YqTLwaBP\" meta [IsParameterQuery=true, Type=\"Any\", IsParameterQueryRequired=true];\r\nshared tenant_id = \"4510a959-aa93-4f35-a3f5-e2249f4d35f6\" meta [IsParameterQuery=true, Type=\"Any\", IsParameterQueryRequired=true];\r\nshared GetToken = let\n    Source = () =>\nlet\n    body = \"grant_type=client_credentials&resource=https://analysis.windows.net/powerbi/api&client_id=\"&client_id&\"&client_secret=\"&client_secret,\n    Data=Json.Document(Web.Contents(\"https://login.microsoftonline.com/\"&tenant_id&\"/oauth2/token\", [Headers=[#\"Content-Type\"=\"application/x-www-form-urlencoded\"], Content=Text.ToBinary(body)])),\n    access_token = Data[access_token]\nin\n    access_token\nin\n    Source;\r\nshared wsbody = let\r\n  JSV = Json.FromValue([workspaces = #\"Column1 id\"]),\r\n  JSONToTextOne = Table.FromColumns({Lines.FromBinary(JSV, null, null, 1252)}),\r\n  TextOnly = JSONToTextOne{0}[Column1]\r\nin\r\n  TextOnly;\r\nshared getScanID = let\n\n    Data = Json.Document(Web.Contents(\"https://api.powerbi.com/v1.0/myorg/\",\n    [\n        RelativePath= \"admin/workspaces/modified?excludePersonalWorkspaces=True\",\n    \n    \n     \n\n       Headers=[Authorization=\"Bearer \" & GetToken()]\n    ]\n    )),\n    #\"Converted to Table\" = Table.FromList(Data, Splitter.SplitByNothing(), null, null, ExtraValues.Error),\n    exo = Table.ExpandRecordColumn(#\"Converted to Table\", \"Column1\", {\"id\"}, {\"Column1.id\"}),\n        PostWSContent = Web.Contents(\"https://api.powerbi.com/v1.0/myorg/admin/workspaces/getInfo?lineage=True&datasourceDetails=True&datasetSchema=true&datasetExpressions=true&getArtifactUsers=true\",\n    [\n        \n       Headers=[Authorization=\"Bearer \" & GetToken(),\n       #\"Content-Type\"=\"application/json\"\n       ],\n       Content =  Text.ToBinary(wsbody)]),\n\n    #\"Renamed Columns\" = Table.RenameColumns(exo,{{\"Column1.id\", \"workspaceID\"}}),\n    #\"Changed Type\" = Table.TransformColumnTypes(#\"Renamed Columns\",{{\"workspaceID\", type text}}),\n    exoN = Table.AddColumn( #\"Changed Type\", \"NN\", each Json.Document(PostWSContent))\nin\n    exoN;\r\nshared #\"Column1 id\" = let\n\n    Data = Json.Document(Web.Contents(\"https://api.powerbi.com/v1.0/myorg/\",\n    [\n        RelativePath= \"admin/workspaces/modified?excludePersonalWorkspaces=True\",\n    \n    \n     \n\n       Headers=[Authorization=\"Bearer \" & GetToken()]\n    ]\n    )),\n    #\"Converted to Table\" = Table.FromList(Data, Splitter.SplitByNothing(), null, null, ExtraValues.Error),\n    #\"Expanded Column1\" = Table.ExpandRecordColumn(#\"Converted to Table\", \"Column1\", {\"id\"}, {\"Column1.id\"}),\n    #\"Column1 id1\" = #\"Expanded Column1\"[Column1.id]\nin\n    #\"Column1 id1\";\r\nshared WorkspaceList = let\n\n    Data = Json.Document(Web.Contents(\"https://api.powerbi.com/v1.0/myorg/\",\n    [\n        RelativePath= \"admin/workspaces/modified?excludePersonalWorkspaces=True\",\n    \n    \n     \n\n       Headers=[Authorization=\"Bearer \" & GetToken()]\n    ]\n    )),\n    #\"Converted to Table\" = Table.FromList(Data, Splitter.SplitByNothing(), null, null, ExtraValues.Error),\n    exo = Table.ExpandRecordColumn(#\"Converted to Table\", \"Column1\", {\"id\"}, {\"Column1.id\"}),\n    #\"Changed Type\" = Table.TransformColumnTypes(exo,{{\"Column1.id\", type text}})\nin\n    #\"Changed Type\";\r\nshared scanResults = let\r\n  Data = getScanID[NN],\r\n  Data1 = Data{0},\r\n  #\"Converted to Table\" = Record.ToTable(Data1),\r\n  #\"Transform columns\" = Table.TransformColumnTypes(#\"Converted to Table\", {{\"Value\", type text}}),\r\n  #\"Replace errors\" = Table.ReplaceErrorValues(#\"Transform columns\", {{\"Value\", null}})\r\nin\r\n  #\"Replace errors\";\r\nshared getScanIDWS = let\n    Source = getScanID,\n    #\"Expanded NN\" = Table.ExpandRecordColumn(Source, \"NN\", {\"id\", \"createdDateTime\", \"status\"}, {\"id\", \"createdDateTime\", \"status\"}),\n    #\"Changed Type\" = Table.TransformColumnTypes(#\"Expanded NN\",{{\"id\", type text}, {\"createdDateTime\", type datetime}, {\"status\", type text}})\nin\n    #\"Changed Type\";\r\n",
+        "connectionOverrides": [
+            {
+                "path": "https://api.powerbi.com/v1.0/myorg",
+                "kind": "Web",
+                "provider": "CdsA",
+                "authenticationKind": null,
+                "environmentName": null,
+                "apiName": null,
+                "connectionName": "{\"kind\":\"Web\",\"path\":\"https://api.powerbi.com/v1.0/myorg\"}",
+                "audience": null
+            },
+            {
+                "path": "https://login.microsoftonline.com/4510a959-aa93-4f35-a3f5-e2249f4d35f6/oauth2/token",
+                "kind": "Web",
+                "provider": "CdsA",
+                "authenticationKind": null,
+                "environmentName": null,
+                "apiName": null,
+                "connectionName": "{\"kind\":\"Web\",\"path\":\"https://login.microsoftonline.com/4510a959-aa93-4f35-a3f5-e2249f4d35f6/oauth2/token\"}",
+                "audience": null
+            }
+        ]
+    },
+    "annotations": [
+        {
+            "name": "pbi:QueryGroups",
+            "value": "[{\"id\":\"40ddf872-7938-4986-903f-0455b6657d6b\",\"name\":\"parameters\",\"description\":\"\",\"parentId\":null,\"order\":1}]"
+        }
+    ],
+    "entities": [
+        {
+            "$type": "LocalEntity",
+            "name": "WorkspaceList",
+            "description": "",
+            "pbi:refreshPolicy": {
+                "$type": "FullRefreshPolicy",
+                "location": "WorkspaceList.csv"
+            },
+            "attributes": [
+                {
+                    "name": "Column1.id",
+                    "dataType": "string"
+                }
+            ],
+            "partitions": [
+                {
+                    "name": "FullRefreshPolicyPartition",
+                    "refreshTime": "2022-12-02T11:36:44.6537463+00:00",
+                    "location": "https://pugliaeaststoragemain.dfs.core.windows.net/powerbi/zPROD-Testing/bronzeGetScannerWorkspaceID/WorkspaceList/WorkspaceList.csv.snapshots/WorkspaceList.csv@snapshot=2022-12-02T11:36:44.5287027Z"
+                }
+            ]
+        },
+        {
+            "$type": "LocalEntity",
+            "name": "scanResults",
+            "description": "",
+            "pbi:refreshPolicy": {
+                "$type": "FullRefreshPolicy",
+                "location": "scanResults.csv"
+            },
+            "attributes": [
+                {
+                    "name": "Name",
+                    "dataType": "string"
+                },
+                {
+                    "name": "Value",
+                    "dataType": "string"
+                }
+            ],
+            "partitions": [
+                {
+                    "name": "FullRefreshPolicyPartition",
+                    "refreshTime": "2022-12-02T11:36:44.8514588+00:00",
+                    "location": "https://pugliaeaststoragemain.dfs.core.windows.net/powerbi/zPROD-Testing/bronzeGetScannerWorkspaceID/scanResults/scanResults.csv.snapshots/scanResults.csv@snapshot=2022-12-02T11:36:44.7564732Z"
+                }
+            ]
+        },
+        {
+            "$type": "LocalEntity",
+            "name": "getScanIDWS",
+            "description": "",
+            "pbi:refreshPolicy": {
+                "$type": "FullRefreshPolicy",
+                "location": "getScanIDWS.csv"
+            },
+            "attributes": [
+                {
+                    "name": "workspaceID",
+                    "dataType": "string"
+                },
+                {
+                    "name": "id",
+                    "dataType": "string"
+                },
+                {
+                    "name": "createdDateTime",
+                    "dataType": "dateTime"
+                },
+                {
+                    "name": "status",
+                    "dataType": "string"
+                }
+            ],
+            "partitions": [
+                {
+                    "name": "FullRefreshPolicyPartition",
+                    "refreshTime": "2022-12-02T11:36:44.6537463+00:00",
+                    "location": "https://pugliaeaststoragemain.dfs.core.windows.net/powerbi/zPROD-Testing/bronzeGetScannerWorkspaceID/getScanIDWS/getScanIDWS.csv.snapshots/getScanIDWS.csv@snapshot=2022-12-02T11:36:44.5287027Z"
+                }
+            ]
+        }
+    ]
+}

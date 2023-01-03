@@ -1,49 +1,100 @@
-# Power BI Metadata Scanner API & Template
+# Solution v2 - Using the Dataflow Scanner API Solution
+!!!  info Solution v1
+    Looking for Solution v1 (Power Automate)? [You can find it here.](./v1Solution/)
 
-This is based on the PowerBI.Tips Blog Post about this repo. For full instructions, [please see the article here.](https://powerbi.tips/2021/10/using-the-power-bi-scanner-api-to-manage-tenants-entire-metadata/)
+## Introduction
 
-Building the Solution
-=====================
+The following is an updated solution to collect and store Power BI tenant metadata. To see version 1 (using Power Automate), see here: LINK.
+This solution utilizes Dataflow Best Practices, and utilizes the "bronze / silver / gold" approach to dataflows to A) Send a single request for a new scan and B) use the silver/gold dataflow to collect the metadata from that scan.
 
-The majority of credit needs to go to [Ferry Bouwman](https://www.linkedin.com/in/ferrybouwman/) who initially created a viable solution that can easily be integrated into a report. [He created a GitHub repo](https://github.com/ferrybouwman/Power-BI-Read-Only-REST-API) that included a Power Automate flow that truly covers the entire process of automating the API call.
+Without the use of two dataflows, Power Query would attempt per query to post a new scan.
 
-The following is building off Ferry's solution, including the new metadata schema that is now available. There is more that I want to accomplish in this solution, but to get the Scanner API and a template to connect to the data, you can do so using the steps below.
+### Note About V2 & V3
 
-Also many thanks to Rui Romano's solution and Power BI template. [You can find his full solution here](https://github.com/RuiRomano/pbimonitor): 
+There is currently a v3 solution that will not only incorporate the Scanner API, but utilize the same approach for collecting Activity Data from the Power BI Audit Log using incremental refresh to avoid the 30 day retrieve limit. V3 will also incorporate Refresh History of Datasets in a single solution.
 
-### Pre-Requisites Before Use
+V2 is focused on improving the Power Automate method which has limitations and errors.
+
+### Solution v1 (Power Automate)
+
+
+## Pre-Requisites
 
 Before starting, you must have already completed the following in order to use the Scanner API at all. Please see the documentation for each to set up:
 
-*   [Enable Service Principal Authentication for Read-Only Admin API's](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication)
-*   [Create an Azure AD app](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal)
-    *   Ensure there are no Power BI admin-consent required permissions on the application
-    *   Create a client secret / key and copy the value for later use
-*   Create a new Security Group in AD, add the app to the group
-*   [Enable Allow Service Principals to use read-only Power BI admin API's in the Power BI Tenant](https://docs.microsoft.com/en-us/power-bi/admin/service-admin-enhanced-metadata-scanning#enabling-enhanced-metadata-scanning)
+* [Enable Service Principal Authentication for Read-Only Admin API's](https://docs.microsoft.com/en-us/power-bi/admin/read-only-apis-service-principal-authentication)
+* [Create an Azure AD app](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal)
+  * Ensure there are no Power BI admin-consent required permissions on the application
+  * Create a client secret / key and copy the value for later use
+* Create a new Security Group in AD, add the app to the group
+* [Enable Allow Service Principals to use read-only Power BI admin API's in the Power BI Tenant](https://docs.microsoft.com/en-us/power-bi/admin/service-admin-enhanced-metadata-scanning#enabling-enhanced-metadata-scanning)
 
-### The Solution Bundle
+## What's In the Box?
 
-The solution includes the following to implement:
+The solution consists of 2 dataflows & a Power BI Template file. 
 
-*   A Power Automate Flow that handles the entire API request and call
-*   A Scheduled Refresh Flow that refreshing daily and triggers the Flow above
-*   A Power BI Template report to connect to the metadata results
+### Dataflows
 
-[Download the Solution on GitHub.](https://github.com/pugliathomas/powerbiscannermetadata)
+#### bronzeGetScannerResultID
 
-Installing & Using
-==================
+This is the first dataflow needed to be imported into your tenant. This dataflow should be imported into a development or staging workspace.
 
-#### Import the API Scanner Flow
+This is essential as in order to retrieve the metadata, you must post and retrieve a scan ID. The only purpose of this dataflow is to post, and then output the Scan ID to be used in the silverGetScannerResults dataflow.
 
-The first step is to import the Flow pbitips\_ScannerAPI into your tenant. Once you do this, there are a few variables and actions to update before running.
+!!!  caution Important
+    Ensure you do not load this dataflow multiple times a day, or even go back to editing it. Everytime this dataflow is triggered it will post and return a new scan ID! 
 
-*   **tenant**: The tenant of your Active Directory
-*   **clientId**: The Client ID of your registered App
-*   **clientSecret**: The Client Secret value of your registered App
-*   **SharePoint Library**: What SharePoint library you want to save the files
-    *   NOTE: Remember this location as it will be used in Power Query
-*   **Folder Location**: The folder location to save all returned scans
-    *   **NOTE: Remember this location as it will be used in Power Query**
-*   **Folder Location Trigger**: A different folder with a different name, to trigger the refresh run.
+
+#### silvergoldGetScanResults
+
+This is the final dataflow that will be used to create the structured tables for the Power BI Template. This dataflow should be imported into a production workspace.
+
+The only configuration needed in this dataflow is the the query _scanResultID_, which should be pointed to the location of the workspace/dataflow from bronzeGetScannerResultID, and the quey _scanResults_.
+
+In order for this to work in your tenant, you must change the 2nd and 3rd step so the value is the workspace and dataflow id.
+
+```
+let
+    Source = PowerBI.Dataflows(null),
+    // Enter Your Workspace ID as string here
+    workspaceID = "123",
+    // Enter Your Dataflow ID as string here
+    dataflowID = "123",
+    EnterworkspaceID = Source{[workspaceId = workspaceID]}[Data],
+    enterdataflowID = EnterworkspaceID{[dataflowId = dataflowID]}[Data],
+    scanResults1 = enterdataflowID{[entity = "scanResults"]}[Data],
+    #"Filtered Rows" = Table.SelectRows(scanResults1, each [Name] = "id"),
+    Value = #"Filtered Rows"{0}[Value]
+in
+    Value
+```
+
+
+Simply refresh this report and you are ready to go!
+
+### Power BI Data Catalog
+
+The Power BI Template will connect to the dataflows from silvergoldGetScanResults. In order for the report to properly refresh, rather tha using parameters in the data connection strings, the following needs to be updated in the query editor:
+
+baseloadGoldDataflow, the following in the code:
+
+```
+let
+    Source = PowerPlatform.Dataflows(null),
+    Workspaces = Source{[Id = "Workspaces"]}[Data],
+    // Enter Your Workspace ID as string here
+    workspaceID = "123",
+    // Enter Your Dataflow ID as string here
+    dataflowID = "123",
+    EnterWorkspaceID = Workspaces{[workspaceId = workspaceID]}[Data],
+    EnterDataflowID = EnterWorkspaceID{[dataflowId = dataflowID]}[Data]
+in
+    EnterDataflowID
+
+```
+
+Once updated, all the other queries will load correctly. 
+
+## Known Issues & Roadmap
+
+****
