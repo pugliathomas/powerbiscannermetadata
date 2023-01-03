@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The following is an updated solution to collect and store Power BI tenant metadata. To see version 1 (using Power Automate), :[You can find it here.](./v1%20Solution/).
+The following is an updated solution to collect and store Power BI tenant metadata. To see version 1 (using Power Automate), [You can find it here.](./v1%20Solution/).
 
 This solution utilizes Dataflow Best Practices, and utilizes the "bronze / silver / gold" approach to dataflows to A) Send a single request for a new scan and B) use the silver/gold dataflow to collect the metadata from that scan.
 
@@ -15,7 +15,6 @@ There is currently a v3 solution that will not only incorporate the Scanner API,
 V2 is focused on improving the Power Automate method which has limitations and errors.
 
 ### Solution v1 (Power Automate)
-
 
 ## Pre-Requisites
 
@@ -43,7 +42,6 @@ This is essential as in order to retrieve the metadata, you must post and retrie
 ##### Important
     Ensure you do not load this dataflow multiple times a day, or even go back to editing it. Everytime this dataflow is triggered it will post and return a new scan ID! 
 
-
 #### silvergoldGetScanResults
 
 This is the final dataflow that will be used to create the structured tables for the Power BI Template. This dataflow should be imported into a production workspace.
@@ -67,7 +65,6 @@ let
 in
     Value
 ```
-
 
 Simply refresh this report and you are ready to go!
 
