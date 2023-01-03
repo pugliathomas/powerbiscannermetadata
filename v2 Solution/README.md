@@ -1,6 +1,6 @@
 # Solution v2 - Using the Dataflow Scanner API Solution
 !!!  info Solution v1
-    Looking for Solution v1 (Power Automate)? [You can find it here.](./v1Solution/)
+    Looking for Solution v1 (Power Automate)? [You can find it here.](/v1%20Solution/)
 
 ## Introduction
 
