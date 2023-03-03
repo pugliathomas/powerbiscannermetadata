@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "generator-psgallery": "^1.19.0",
+    "yo": "^4.3.1"
+  }
+}

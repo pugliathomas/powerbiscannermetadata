@@ -1,0 +1,19 @@
+{
+  "AppId": "",
+  "AppSecret": "",
+  "TenantId": "",
+  "UserName": "",
+  "pbiFolders": {
+    "folderAcT": "Where Activity Data will Go - YOU MUST DOUBLE SPACE FOLDERS ie. C:\\Folder\\Folder\\Folder",
+    "configfilePath": "The Location of This File Double Spaces",
+    "folderuserLicenses": "Where the Output of User License Information will Go",
+    "folderBPA": "Where BPA Results will Go",
+    "folderRefresh": "Where Dataset Refresh will Go"
+  },
+  "pbiState": {
+    "Activity": {
+      "LastRun": ""
+    },
+    "GatewayLogs": null
+  }
+}
