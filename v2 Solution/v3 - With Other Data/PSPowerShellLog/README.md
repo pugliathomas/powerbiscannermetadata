@@ -1,10 +1,10 @@
 # The PowerShell Activity Script Bundle
 
-The following set of scripts are meant to provide you will a full scale view of your entire tenant. Like with all of the other solutions, you must ensure you have configured your tenant settings and have configured the appropriate App Registrations ([See The Readme](##README.md).
+The following set of scripts are meant to provide you will a full scale view of your entire tenant. Like with all of the other solutions, you must ensure you have configured your tenant settings and have configured the appropriate App Registrations ([See The Readme](README.md).
 
 ## The Configuration File
 
-Before running any scripts, you must first set up the [config.jsonfile](##config.json) with the following:
+Before running any scripts, you must first set up the [config.json file](config.json) with the following:
 
 ### Credentials
 
@@ -26,7 +26,7 @@ C:\\Folder\\Folder
 
 ## Before You Run
 
-The last step that is needed is to change line 14 on [pbiRun.ps1](##pbiRun.ps1) to the base folder location of all of the scripts. For example, if you downloaded this solution to your C drive under "PowerBI Stuff", and you downloaded the entire repository (not just the folder), then the script location would be at:
+The last step that is needed is to change line 14 on [pbiRun.ps1](pbiRun.ps1) to the base folder location of all of the scripts. For example, if you downloaded this solution to your C drive under "PowerBI Stuff", and you downloaded the entire repository (not just the folder), then the script location would be at:
 
 
 C:\PowerBIStuff\powerbiscannermetadata\v2 Solution\PSPowerShellLog
